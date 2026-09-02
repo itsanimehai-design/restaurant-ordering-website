@@ -1,331 +1,436 @@
 import React, { useState, useMemo } from 'react';
-import { Sparkles, Plus, Search, Tag, Users, Clock, ArrowRight, Layers, Eye } from 'lucide-react';
-import { DealBox, StoreSettings } from '../types';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Users, 
+  Sparkles, 
+  ShoppingBag, 
+  CheckCircle2, 
+  Search, 
+  SlidersHorizontal, 
+  UtensilsCrossed, 
+  Flame, 
+  Percent, 
+  Star, 
+  Zap, 
+  Heart,
+  Info,
+  Clock,
+  Wine,
+  IceCream,
+  CircleDot
+} from 'lucide-react';
+import { useRestaurantData } from '../context/RestaurantDataContext';
+import { DealItem, DealIncludedProduct } from '../types';
 
 interface DealsSectionProps {
-  deals: DealBox[];
-  settings: StoreSettings;
-  onSelectDeal: (deal: DealBox) => void;
-  onQuickAddDeal?: (deal: DealBox) => void;
-  onQuickAddToCart?: (deal: DealBox) => void;
-  onOpenOwnerPortal?: () => void;
+  onOrderNow?: (deal: DealItem) => void;
 }
 
-export const DealsSection: React.FC<DealsSectionProps> = ({
-  deals = [],
-  settings,
-  onSelectDeal,
-  onQuickAddDeal,
-  onQuickAddToCart,
-  onOpenOwnerPortal,
-}) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+const CATEGORY_OPTIONS = [
+  { id: 'all', label: 'All Combos & Deals', icon: Sparkles },
+  { id: 'family', label: 'Family Deals', icon: Users },
+  { id: 'couple', label: 'Couple Feasts', icon: Heart },
+  { id: 'friends', label: 'Friends & BBQ', icon: Flame },
+  { id: 'single', label: 'Solo & Executive', icon: Zap },
+  { id: 'party', label: 'Party & Dawat', icon: Star },
+  { id: 'kids', label: 'Kids Specials', icon: UtensilsCrossed },
+];
 
-  const handleQuickAdd = (deal: DealBox) => {
-    if (onQuickAddToCart) {
-      onQuickAddToCart(deal);
-    } else if (onQuickAddDeal) {
-      onQuickAddDeal(deal);
+export const DealsSection: React.FC<DealsSectionProps> = ({ onOrderNow }) => {
+  const { deals, formatPrice, addToCart, openOrderModal } = useRestaurantData();
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [maxBudget, setMaxBudget] = useState<number>(12000);
+  const [addedDealId, setAddedDealId] = useState<string | null>(null);
+  const [likedDeals, setLikedDeals] = useState<Record<string, boolean>>({});
+
+  const filteredDeals = useMemo(() => {
+    return deals.filter((deal) => {
+      // Category match
+      if (selectedCategory !== 'all' && deal.category !== selectedCategory) {
+        return false;
+      }
+      // Search match
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesName = deal.name.toLowerCase().includes(q);
+        const matchesDesc = deal.description.toLowerCase().includes(q);
+        const matchesItems = deal.includedItems?.some((i) => i.name.toLowerCase().includes(q));
+        const matchesBadge = deal.badge?.toLowerCase().includes(q);
+        if (!matchesName && !matchesDesc && !matchesItems && !matchesBadge) {
+          return false;
+        }
+      }
+      // Budget match
+      if (deal.price > maxBudget) {
+        return false;
+      }
+      return true;
+    });
+  }, [deals, selectedCategory, searchQuery, maxBudget]);
+
+  const handleAddToCart = (deal: DealItem) => {
+    const includedSummary = deal.includedItems?.map(i => `${i.quantity}x ${i.name}`).join(', ');
+    addToCart({
+      id: deal.id,
+      name: deal.name,
+      price: deal.price,
+      category: 'Meals & Deals',
+      image: deal.image,
+      servingSize: deal.serves || includedSummary
+    }, 1);
+
+    setAddedDealId(deal.id);
+    setTimeout(() => {
+      setAddedDealId((curr) => (curr === deal.id ? null : curr));
+    }, 2000);
+  };
+
+  const handleDirectOrder = (deal: DealItem) => {
+    if (onOrderNow) {
+      onOrderNow(deal);
     } else {
-      onSelectDeal(deal);
+      const includedSummary = deal.includedItems?.map(i => `${i.quantity}x ${i.name}`).join(', ');
+      openOrderModal('delivery', {
+        id: deal.id,
+        name: deal.name,
+        price: deal.price,
+        quantity: 1,
+        servingSize: deal.serves || includedSummary,
+        image: deal.image
+      });
     }
   };
 
-  const safeDeals = Array.isArray(deals) ? deals : [];
+  const toggleLike = (dealId: string) => {
+    setLikedDeals(prev => ({ ...prev, [dealId]: !prev[dealId] }));
+  };
 
-  // Extract unique categories from active deals
-  const categories = useMemo(() => {
-    const set = new Set<string>();
-    safeDeals.forEach((d) => {
-      if (d && d.category) set.add(d.category);
-    });
-    return ['All', ...Array.from(set)];
-  }, [safeDeals]);
-
-  // Filter deals
-  const filteredDeals = useMemo(() => {
-    return safeDeals.filter((deal) => {
-      if (!deal || !deal.isActive) return false;
-
-      const matchesCategory =
-        selectedCategory === 'All' || deal.category?.toLowerCase() === selectedCategory.toLowerCase();
-
-      const q = searchQuery.toLowerCase().trim();
-      if (!q) return matchesCategory;
-
-      const matchesName = (deal.name || '').toLowerCase().includes(q);
-      const matchesDesc = (deal.description || '').toLowerCase().includes(q);
-      const matchesIncluded = (deal.includedItems || []).some(
-        (item) => (item?.name || '').toLowerCase().includes(q) || (item?.note || '').toLowerCase().includes(q)
-      );
-
-      return matchesCategory && (matchesName || matchesDesc || matchesIncluded);
-    });
-  }, [safeDeals, selectedCategory, searchQuery]);
+  const getItemCategoryIcon = (category?: string) => {
+    if (category === 'drink') return <Wine className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />;
+    if (category === 'dessert') return <IceCream className="w-3.5 h-3.5 text-rose-400 flex-shrink-0" />;
+    return <CircleDot className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />;
+  };
 
   return (
-    <section id="deals" className="py-10 sm:py-14 bg-white border-b border-stone-200 scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold text-amber-600 uppercase tracking-widest bg-amber-50 px-3 py-1 rounded-md border border-amber-200/80 mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Unlimited Deal / Box System</span>
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold text-stone-900 tracking-tight font-serif">
-              Food Deals & Feast Boxes
-            </h2>
-            <p className="text-stone-500 text-sm mt-1 max-w-2xl">
-              Freshly prepared value meals loaded with burgers, fries, wings, nuggets, and drinks. Every deal is fully customizable with delicious add-ons!
-            </p>
+    <div id="meals-deals-section" className="w-full">
+      {/* Header Banner */}
+      <div className="relative rounded-3xl overflow-hidden mb-10 border border-amber-500/20 bg-gradient-to-r from-stone-950 via-stone-900 to-stone-950 p-6 md:p-10 shadow-2xl">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 bg-orange-600/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
+        <div className="relative z-10 max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-semibold uppercase tracking-wider mb-4">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Master Crafted Deal Packages & Combos</span>
           </div>
 
-          {/* Owner Portal Action Indicator */}
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={onOpenOwnerPortal}
-              className="inline-flex items-center gap-2 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold px-3.5 py-2 rounded-xl border border-stone-300 transition-colors"
-            >
-              <Plus className="w-4 h-4 text-amber-600" />
-              <span>+ Add / Manage Deals in Portal</span>
-            </button>
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-stone-100 mb-3 tracking-tight">
+            Meals & Deals
+          </h2>
+          <p className="text-stone-300 text-sm md:text-base leading-relaxed mb-6">
+            Curated dining combinations featuring signature Shanwari woks, charcoal grill platters, tandoori breads, chilled drinks, and royal desserts. Designed for unbeatable value and convenience.
+          </p>
+
+          {/* Quick Stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+            <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-3 text-center">
+              <span className="text-xl font-bold text-amber-400 block">{deals.length}</span>
+              <span className="text-xs text-stone-400 uppercase font-medium">Ready Combos</span>
+            </div>
+            <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-3 text-center">
+              <span className="text-xl font-bold text-amber-400 block">Up to 25%</span>
+              <span className="text-xs text-stone-400 uppercase font-medium">Bundle Savings</span>
+            </div>
+            <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-3 text-center">
+              <span className="text-xl font-bold text-amber-400 block">1 - 10+</span>
+              <span className="text-xs text-stone-400 uppercase font-medium">Persons Servings</span>
+            </div>
+            <div className="bg-stone-900/80 border border-stone-800 rounded-2xl p-3 text-center">
+              <span className="text-xl font-bold text-emerald-400 block">100% Halal</span>
+              <span className="text-xs text-stone-400 uppercase font-medium">Freshly Cooked</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Filter Controls: Search & Category Pills */}
-        <div className="space-y-4 mb-8">
-          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
-            {/* Category Filter Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 max-w-full no-scrollbar">
-              {categories.map((cat) => (
+      {/* Filter and Search Bar */}
+      <div className="bg-stone-900/70 border border-stone-800/80 rounded-2xl p-4 md:p-6 mb-8 backdrop-blur-md">
+        <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center justify-between">
+          {/* Category Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none">
+            {CATEGORY_OPTIONS.map((cat) => {
+              const Icon = cat.icon;
+              const isSelected = selectedCategory === cat.id;
+              return (
                 <button
-                  key={cat}
-                  type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    selectedCategory === cat
-                      ? 'bg-amber-600 text-white shadow-sm shadow-amber-600/20'
-                      : 'bg-stone-100 text-stone-700 hover:bg-stone-200/70 border border-stone-200/60'
+                  key={cat.id}
+                  id={`deal-tab-${cat.id}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-stone-950 font-bold shadow-lg shadow-amber-500/20'
+                      : 'bg-stone-800/80 text-stone-300 hover:bg-stone-700 hover:text-white'
                   }`}
                 >
-                  {cat === 'All' ? '🔥 All Deals & Boxes' : cat}
+                  <Icon className={`w-4 h-4 ${isSelected ? 'text-stone-950' : 'text-amber-400'}`} />
+                  <span>{cat.label}</span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
 
-            {/* Search Input */}
-            <div className="relative min-w-[220px] sm:w-64">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search deals, burgers, fries..."
-                className="w-full bg-stone-50 border border-stone-200 rounded-xl pl-9 pr-3 py-1.5 text-xs text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 text-xs font-bold"
-                >
-                  ×
-                </button>
-              )}
-            </div>
+          {/* Search Input */}
+          <div className="relative min-w-[240px]">
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              id="deal-search-input"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search deals, dishes, drinks..."
+              className="w-full bg-stone-950/80 border border-stone-800 text-stone-200 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:border-amber-500/60 transition-colors placeholder:text-stone-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-stone-400 hover:text-stone-200"
+              >
+                Clear
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Deals Grid */}
-        {filteredDeals.length === 0 ? (
-          <div className="text-center py-12 px-4 bg-stone-50 rounded-2xl border border-dashed border-stone-300">
-            <Layers className="w-10 h-10 text-stone-400 mx-auto mb-3" />
-            <h3 className="font-bold text-stone-800 text-base">No deals found in this category</h3>
-            <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
-              Try adjusting your search query or switch categories. The owner can add unlimited new deals in the Owner Portal!
-            </p>
-            <div className="flex justify-center gap-3 mt-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedCategory('All');
-                  setSearchQuery('');
-                }}
-                className="text-xs font-bold text-amber-600 hover:underline"
-              >
-                View All Deals
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={onOpenOwnerPortal}
-                className="text-xs font-bold text-stone-800 hover:underline"
-              >
-                + Add New Deal in Portal
-              </button>
-            </div>
+        {/* Budget Filter Slider Subrow */}
+        <div className="mt-4 pt-4 border-t border-stone-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-stone-400">
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-amber-400" />
+            <span>Filter by Max Budget: <strong className="text-amber-400 font-semibold">{formatPrice(maxBudget)}</strong></span>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredDeals.map((deal) => (
-              <div
-                key={deal.id}
-                onClick={() => onSelectDeal(deal)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    onSelectDeal(deal);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`View details for ${deal.name}`}
-                className="group relative bg-white rounded-2xl border border-stone-200/80 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-500/50"
-              >
-                {/* Image Container with Badges */}
-                <div className="relative h-48 w-full bg-stone-100 overflow-hidden">
-                  <img
-                    src={deal.image}
-                    alt={deal.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+          <div className="w-full sm:w-64 flex items-center gap-3">
+            <span className="text-stone-500">₨500</span>
+            <input
+              type="range"
+              min="500"
+              max="12000"
+              step="250"
+              value={maxBudget}
+              onChange={(e) => setMaxBudget(Number(e.target.value))}
+              className="w-full accent-amber-500 cursor-pointer"
+            />
+            <span className="text-stone-500">₨12k</span>
+          </div>
+        </div>
+      </div>
 
-                  {/* Badges */}
-                  <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
-                    {deal.discount && (
-                      <span className="bg-rose-600 text-white text-[11px] font-extrabold px-2.5 py-0.5 rounded-md shadow-sm">
-                        {deal.discount}
-                      </span>
-                    )}
-                    {deal.tag && (
-                      <span className="bg-amber-500 text-stone-950 text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase tracking-wider">
-                        {deal.tag}
-                      </span>
-                    )}
-                    {deal.isFeatured && (
-                      <span className="bg-stone-900/90 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-400/30 flex items-center gap-1">
-                        <Sparkles className="w-2.5 h-2.5" /> Featured
-                      </span>
-                    )}
-                  </div>
+      {/* Deals Grid */}
+      {filteredDeals.length === 0 ? (
+        <div className="text-center py-16 px-4 rounded-3xl bg-stone-900/40 border border-stone-800">
+          <UtensilsCrossed className="w-12 h-12 text-stone-600 mx-auto mb-3" />
+          <h3 className="text-lg font-bold text-stone-300 mb-1">No Deals Match Your Filter</h3>
+          <p className="text-sm text-stone-500 mb-4">Try adjusting your category selection, search terms, or budget limit.</p>
+          <button
+            onClick={() => {
+              setSelectedCategory('all');
+              setSearchQuery('');
+              setMaxBudget(12000);
+            }}
+            className="px-4 py-2 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-semibold hover:bg-amber-500/30 transition-colors"
+          >
+            Reset Filters
+          </button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          <AnimatePresence mode="popLayout">
+            {filteredDeals.map((deal, index) => {
+              const isAdded = addedDealId === deal.id;
+              const isLiked = !!likedDeals[deal.id];
 
-                  {/* Servings & Prep time tag */}
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between text-[11px] text-white font-medium">
-                    {deal.servings ? (
-                      <span className="bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <Users className="w-3 h-3 text-amber-300" /> {deal.servings}
-                      </span>
-                    ) : (
-                      <span></span>
-                    )}
-                    {deal.prepTimeMinutes && (
-                      <span className="bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded-md flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-stone-300" /> ~{deal.prepTimeMinutes} mins
-                      </span>
-                    )}
-                  </div>
-                </div>
+              return (
+                <motion.div
+                  key={deal.id}
+                  id={`deal-card-${deal.id}`}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className={`group flex flex-col justify-between rounded-3xl bg-gradient-to-b from-stone-900 to-stone-950 border transition-all duration-300 overflow-hidden shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 ${
+                    deal.isFeatured 
+                      ? 'border-amber-500/40 hover:border-amber-400' 
+                      : 'border-stone-800 hover:border-stone-700'
+                  }`}
+                >
+                  {/* Card Top: Image & Overlay Badges */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-stone-950">
+                    <img
+                      src={deal.image}
+                      alt={deal.name}
+                      referrerPolicy="no-referrer"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 brightness-90 group-hover:brightness-100"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/40 to-transparent" />
 
-                {/* Card Body */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-base sm:text-lg text-stone-900 group-hover:text-amber-700 transition-colors leading-snug">
-                        {deal.name}
-                      </h3>
+                    {/* Top Left: Custom Badge */}
+                    {deal.badge && (
+                      <div className="absolute top-3 left-3 px-3 py-1 rounded-full bg-amber-500/90 text-stone-950 text-xs font-bold shadow-lg backdrop-blur-sm">
+                        {deal.badge}
+                      </div>
+                    )}
+
+                    {/* Top Right: Wishlist and AI Rating */}
+                    <div className="absolute top-3 right-3 flex items-center gap-2">
+                      {deal.showAiRating && deal.aiRating && (
+                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-stone-950/80 border border-amber-500/30 text-amber-400 text-xs font-bold backdrop-blur-md">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span>{deal.aiRating}</span>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => toggleLike(deal.id)}
+                        className={`p-2 rounded-full backdrop-blur-md transition-colors ${
+                          isLiked 
+                            ? 'bg-rose-500/80 text-white' 
+                            : 'bg-stone-950/60 text-stone-300 hover:text-white'
+                        }`}
+                        title="Save to favorites"
+                      >
+                        <Heart className={`w-3.5 h-3.5 ${isLiked ? 'fill-white' : ''}`} />
+                      </button>
                     </div>
 
-                    <p className="text-xs text-stone-500 line-clamp-2 mt-1 leading-relaxed">
-                      {deal.description}
-                    </p>
+                    {/* Bottom overlay: Servings & Savings */}
+                    <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-900/90 border border-stone-700 text-stone-200 font-medium backdrop-blur-md">
+                        <Users className="w-3.5 h-3.5 text-amber-400" />
+                        <span>{deal.serves || 'Multiple Servings'}</span>
+                      </div>
 
-                    {/* Food Items Included in Deal */}
-                    {deal.includedItems && deal.includedItems.length > 0 && (
-                      <div className="mt-3 bg-amber-50/50 border border-amber-200/60 rounded-xl p-2.5 space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-extrabold text-amber-900 uppercase tracking-wider flex items-center gap-1">
-                            <span>📦 Inside this Box:</span>
-                          </span>
-                          <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">
-                            {deal.includedItems.length} items
-                          </span>
+                      {deal.savingsText && (
+                        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 font-semibold backdrop-blur-md">
+                          <Percent className="w-3 h-3" />
+                          <span>{deal.savingsText}</span>
                         </div>
-                        <ul className="space-y-1">
-                          {deal.includedItems.map((item) => (
-                            <li
-                              key={item.id}
-                              className="text-xs text-stone-800 flex items-center justify-between"
-                            >
-                              <span className="flex items-center gap-1.5 truncate">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0"></span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card Body: Details & Included Products */}
+                  <div className="p-5 md:p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="text-xl font-bold font-serif text-stone-100 group-hover:text-amber-400 transition-colors">
+                          {deal.name}
+                        </h3>
+                      </div>
+
+                      <p className="text-stone-400 text-xs sm:text-sm leading-relaxed mb-4 line-clamp-2">
+                        {deal.description}
+                      </p>
+
+                      {/* Included Items Box */}
+                      <div className="bg-stone-950/70 border border-stone-800/80 rounded-2xl p-3.5 mb-5">
+                        <div className="text-[11px] font-semibold uppercase tracking-wider text-amber-400/90 mb-2 flex items-center justify-between">
+                          <span>Included in this Combo:</span>
+                          <span className="text-stone-500 font-normal">{deal.includedItems?.length || 0} Items</span>
+                        </div>
+
+                        <ul className="space-y-1.5">
+                          {deal.includedItems?.map((item: DealIncludedProduct, idx: number) => (
+                            <li key={idx} className="flex items-center justify-between text-xs text-stone-300">
+                              <div className="flex items-center gap-2 truncate pr-2">
+                                {getItemCategoryIcon(item.category)}
                                 <span className="truncate">{item.name}</span>
-                              </span>
-                              <span className="font-bold text-stone-900 text-[11px] bg-white px-1.5 py-0.2 rounded border border-amber-200/50 shrink-0 ml-2">
-                                {item.quantity} {item.unit || ''}
+                              </div>
+                              <span className="px-1.5 py-0.5 rounded bg-stone-800 text-amber-400 font-mono text-[11px] font-bold flex-shrink-0">
+                                {item.quantity}x
                               </span>
                             </li>
                           ))}
                         </ul>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  {/* Price & Action Button */}
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between gap-2">
-                    <div>
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="text-lg sm:text-xl font-extrabold text-stone-900 font-serif">
-                          {settings.currency} {deal.price.toLocaleString()}
-                        </span>
-                        {deal.originalPrice && (
-                          <span className="text-xs text-stone-400 line-through">
-                            {settings.currency} {deal.originalPrice.toLocaleString()}
+                    {/* Card Footer: Pricing & CTAs */}
+                    <div className="pt-4 border-t border-stone-800/80">
+                      <div className="flex items-baseline justify-between mb-4">
+                        <div>
+                          <div className="text-xs text-stone-500 font-medium uppercase">Total Deal Price</div>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-2xl font-bold text-amber-400 font-serif">
+                              {formatPrice(deal.price)}
+                            </span>
+                            {deal.originalPrice && deal.originalPrice > deal.price && (
+                              <span className="text-xs text-stone-500 line-through">
+                                {formatPrice(deal.originalPrice)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="text-right">
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${
+                            deal.isAvailable 
+                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          }`}>
+                            <span className={`w-1.5 h-1.5 rounded-full ${deal.isAvailable ? 'bg-emerald-400' : 'bg-rose-400'}`} />
+                            {deal.isAvailable ? 'Freshly Available' : 'Sold Out Today'}
                           </span>
-                        )}
+                        </div>
                       </div>
-                      <span className="text-[10px] text-stone-400 block font-medium">PKR net price</span>
-                    </div>
 
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onSelectDeal(deal);
-                        }}
-                        className="bg-stone-900 hover:bg-amber-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-xs flex items-center gap-1"
-                        title="Customize items, options and add-ons"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>View Deal</span>
-                      </button>
+                      {/* Action Buttons: Add to Cart & Direct Order Now */}
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          id={`add-cart-deal-${deal.id}`}
+                          disabled={!deal.isAvailable}
+                          onClick={() => handleAddToCart(deal)}
+                          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                            !deal.isAvailable
+                              ? 'bg-stone-900 border-stone-800 text-stone-600 cursor-not-allowed'
+                              : isAdded
+                              ? 'bg-emerald-500 text-stone-950 border-emerald-400'
+                              : 'bg-stone-900 hover:bg-stone-800 border-stone-700 hover:border-amber-500/50 text-stone-200 hover:text-white'
+                          }`}
+                        >
+                          {isAdded ? (
+                            <>
+                              <CheckCircle2 className="w-4 h-4 text-stone-950" />
+                              <span>Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Add to Cart</span>
+                            </>
+                          )}
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleQuickAdd(deal);
-                        }}
-                        className="bg-amber-600 hover:bg-amber-700 text-white p-2 rounded-xl transition-colors shadow-xs"
-                        title="Quick Add to Cart"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </button>
+                        <button
+                          id={`order-now-deal-${deal.id}`}
+                          disabled={!deal.isAvailable}
+                          onClick={() => handleDirectOrder(deal)}
+                          className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md ${
+                            !deal.isAvailable
+                              ? 'bg-stone-800 text-stone-600 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-extrabold shadow-amber-500/20 hover:shadow-amber-500/30'
+                          }`}
+                        >
+                          <Zap className="w-3.5 h-3.5 fill-stone-950" />
+                          <span>Order Now</span>
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </section>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+    </div>
   );
 };

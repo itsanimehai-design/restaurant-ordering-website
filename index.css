@@ -1,1 +1,1182 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --charcoal: #0D0D0D;
+    --charcoal-light: #161413;
+    --charcoal-card: #14110F;
+    --cream: #F5F2ED;
+    --cream-muted: #D6CEBF;
+    --gold: #C5A059;
+    --gold-bright: #D4AF37;
+    --gold-dark: #8C5E10;
+    --border-subtle: rgba(197, 160, 89, 0.18);
+    --border-card: rgba(255, 255, 255, 0.07);
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-display: 'Cinzel', serif;
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  html.light, [data-theme="light"] {
+    --charcoal: #FAF8F5;
+    --charcoal-light: #F4EFE6;
+    --charcoal-card: #FFFFFF;
+    --cream: #1C1917;
+    --cream-muted: #57534E;
+    --gold: #B45309;
+    --gold-bright: #D97706;
+    --gold-dark: #78350F;
+    --border-subtle: rgba(180, 83, 9, 0.2);
+    --border-card: rgba(0, 0, 0, 0.08);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 85px;
+    overflow-x: hidden;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--charcoal);
+    color: var(--cream);
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  #root {
+    overflow-x: hidden;
+    min-height: 100vh;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom Artistic Flair Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--charcoal);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #25201C;
+  border-radius: 4px;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #D6CEBF;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #C5A059;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #B45309;
+}
+
+/* Artistic Flair Card and Button Utilities */
+.btn-gold {
+  position: relative;
+  background: linear-gradient(135deg, #D4AF37 0%, #C5A059 50%, #9B7829 100%);
+  color: #0D0D0D;
+  font-weight: 600;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease;
+  box-shadow: 0 4px 20px -2px rgba(197, 160, 89, 0.28);
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #E5C158 0%, #D4AF37 50%, #AA820A 100%);
+  transform: scale(1.02) translate3d(0, -2px, 0);
+  -webkit-transform: scale(1.02) translate3d(0, -2px, 0);
+  box-shadow: 0 8px 25px -1px rgba(197, 160, 89, 0.45);
+}
+
+.btn-gold:active {
+  transform: scale(0.98) translate3d(0, 0, 0);
+  -webkit-transform: scale(0.98) translate3d(0, 0, 0);
+}
+
+.btn-outline-gold {
+  position: relative;
+  border: 1px solid rgba(197, 160, 89, 0.45);
+  color: #E5C158;
+  background: rgba(18, 15, 13, 0.5);
+  backdrop-filter: blur(8px);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s ease, border-color 0.3s ease;
+}
+
+html.light .btn-outline-gold {
+  border-color: rgba(180, 83, 9, 0.4);
+  color: #92400E;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.btn-outline-gold:hover {
+  border-color: #C5A059;
+  background: rgba(197, 160, 89, 0.14);
+  color: #FDFBF7;
+  transform: scale(1.02) translate3d(0, -2px, 0);
+  -webkit-transform: scale(1.02) translate3d(0, -2px, 0);
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.2);
+}
+
+.btn-outline-gold:active {
+  transform: scale(0.98) translate3d(0, 0, 0);
+  -webkit-transform: scale(0.98) translate3d(0, 0, 0);
+}
+
+html.light .btn-outline-gold:hover {
+  background: rgba(180, 83, 9, 0.12);
+  color: #78350F;
+  border-color: #B45309;
+}
+
+/* Atmospheric Background Glow Effects */
+.ember-glow {
+  background: radial-gradient(circle at 50% 30%, rgba(212, 110, 30, 0.14) 0%, rgba(13, 13, 13, 0) 70%);
+}
+
+html.light .ember-glow {
+  background: radial-gradient(circle at 50% 30%, rgba(212, 110, 30, 0.08) 0%, rgba(250, 248, 245, 0) 70%);
+}
+
+.gold-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(197, 160, 89, 0.1) 0%, rgba(13, 13, 13, 0) 65%);
+}
+
+html.light .gold-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(197, 160, 89, 0.08) 0%, rgba(250, 248, 245, 0) 65%);
+}
+
+/* Text Shimmer Accent */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #F5F2ED 0%, #D4AF37 50%, #C5A059 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+html.light .text-gold-gradient {
+  background: linear-gradient(135deg, #78350F 0%, #B45309 50%, #D97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PREMIUM PRODUCT & FOOD CARD HOVER ENGINE (60FPS ZERO-LAG GPU ACCELERATED)
+   1. Hover Scale: transform: scale(1.05); (zero layout shift, no sizing changes)
+   2. Perfect Transition: transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+   3. Hardware Acceleration: will-change: transform; and transform: translate3d(0,0,0);
+   4. Floating Shadow Depth: smooth box-shadow pop-out ("bahar aane" effect)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.card-luxury,
+.food-card,
+.product-card,
+.dish-card,
+.menu-card,
+.card-hover-pop {
+  background: #14110F;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4), 0 2px 6px -1px rgba(0, 0, 0, 0.2);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform, box-shadow;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+html.light .card-luxury,
+html.light .food-card,
+html.light .product-card,
+html.light .dish-card,
+html.light .menu-card,
+html.light .card-hover-pop {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 18px -2px rgba(0, 0, 0, 0.06), 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.card-luxury:hover,
+.food-card:hover,
+.product-card:hover,
+.dish-card:hover,
+.menu-card:hover,
+.card-hover-pop:hover {
+  transform: scale(1.03) translate3d(0, -4px, 0);
+  -webkit-transform: scale(1.03) translate3d(0, -4px, 0);
+  border-color: rgba(212, 175, 55, 0.45);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85), 0 12px 24px -8px rgba(0, 0, 0, 0.5), 0 0 25px rgba(212, 175, 55, 0.18);
+  z-index: 20;
+}
+
+html.light .card-luxury:hover,
+html.light .food-card:hover,
+html.light .product-card:hover,
+html.light .dish-card:hover,
+html.light .menu-card:hover,
+html.light .card-hover-pop:hover {
+  transform: scale(1.03) translate3d(0, -4px, 0);
+  -webkit-transform: scale(1.03) translate3d(0, -4px, 0);
+  border-color: rgba(180, 83, 9, 0.4);
+  box-shadow: 0 22px 45px -10px rgba(180, 83, 9, 0.18), 0 8px 20px -6px rgba(0, 0, 0, 0.08);
+  z-index: 20;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   PREMIUM DUAL-ATMOSPHERE THEME SYSTEM (DARK & LIGHT)
+   Translates rich dark luxury tokens into luminous, warm sunlit cream aesthetics
+   ══════════════════════════════════════════════════════════════════════════ */
+html.light, [data-theme="light"] {
+  color-scheme: light;
+}
+
+/* 1. Base Container & Main Page Background Overrides */
+html.light,
+html.light body,
+html.light main,
+html.light .bg-\[\#0d0b0a\],
+html.light .bg-\[\#080706\],
+html.light .bg-\[\#0a0908\],
+html.light .bg-\[\#0A0908\],
+html.light .bg-\[\#0c0a09\],
+html.light .bg-\[\#0d0d0d\],
+html.light .bg-\[\#0D0D0D\],
+html.light .bg-\[\#0D0B0A\],
+html.light .bg-\[\#0f0d0c\],
+html.light .bg-\[\#0F0D0C\],
+html.light .bg-\[\#100a06\],
+html.light .bg-\[\#100b08\],
+html.light .bg-\[\#100c09\],
+html.light .bg-\[\#110b07\],
+html.light .bg-\[\#110d0b\],
+html.light .bg-\[\#110E0D\],
+html.light .bg-\[\#120b07\],
+html.light .bg-\[\#120c08\],
+html.light .bg-\[\#120d09\],
+html.light .bg-\[\#120e0b\],
+html.light .bg-\[\#120f0d\],
+html.light .bg-\[\#120F0D\] {
+  background-color: #FAF8F5 !important;
+  color: #1C1917;
+}
+
+/* 2. Card, Modal, Panel & Section Item Backgrounds (Clean Pure White) */
+html.light .bg-\[\#140e0a\],
+html.light .bg-\[\#140f0c\],
+html.light .bg-\[\#14100d\],
+html.light .bg-\[\#14110f\],
+html.light .bg-\[\#14110F\],
+html.light .bg-\[\#150e09\],
+html.light .bg-\[\#15110d\],
+html.light .bg-\[\#15110e\],
+html.light .bg-\[\#160f0b\],
+html.light .bg-\[\#16100c\],
+html.light .bg-\[\#16110d\],
+html.light .bg-\[\#16120e\],
+html.light .bg-\[\#170a12\],
+html.light .bg-\[\#17110d\],
+html.light .bg-\[\#171310\],
+html.light .bg-\[\#171412\],
+html.light .bg-\[\#18110b\],
+html.light .bg-\[\#18110c\],
+html.light .bg-\[\#18120d\],
+html.light .bg-\[\#18120e\],
+html.light .bg-\[\#18130f\],
+html.light .bg-\[\#181310\],
+html.light .bg-\[\#181412\],
+html.light .bg-\[\#181512\],
+html.light .bg-\[\#19110c\],
+html.light .bg-\[\#1a120c\],
+html.light .bg-\[\#1a120d\],
+html.light .bg-\[\#1a130e\],
+html.light .bg-\[\#1a140f\],
+html.light .bg-\[\#1a1410\],
+html.light .bg-\[\#1a1512\],
+html.light .bg-\[\#1a1613\],
+html.light .bg-\[\#1A1715\],
+html.light .bg-\[\#1b140f\],
+html.light .bg-\[\#1B1815\],
+html.light .bg-\[\#1c1510\],
+html.light .bg-\[\#1c1713\],
+html.light .bg-\[\#1c1714\],
+html.light .bg-\[\#1c1815\],
+html.light .bg-\[\#1C1815\],
+html.light .bg-\[\#1D1916\],
+html.light .bg-\[\#1e140d\],
+html.light .bg-\[\#1e150f\],
+html.light .bg-\[\#1e1711\],
+html.light .bg-\[\#1e1712\],
+html.light .bg-\[\#1e1814\],
+html.light .bg-\[\#1e1915\],
+html.light .bg-\[\#1E1A17\] {
+  background-color: #FFFFFF !important;
+}
+
+/* 3. Secondary Warm Cream Surfaces, Pills & Neutral Rows */
+html.light .bg-\[\#1f1711\],
+html.light .bg-\[\#1f1814\],
+html.light .bg-\[\#1f1a16\],
+html.light .bg-\[\#20150e\],
+html.light .bg-\[\#20160f\],
+html.light .bg-\[\#201813\],
+html.light .bg-\[\#211710\],
+html.light .bg-\[\#211812\],
+html.light .bg-\[\#22160f\],
+html.light .bg-\[\#221811\],
+html.light .bg-\[\#221812\],
+html.light .bg-\[\#221c17\],
+html.light .bg-\[\#24170e\],
+html.light .bg-\[\#24180f\],
+html.light .bg-\[\#241a12\],
+html.light .bg-\[\#241a13\],
+html.light .bg-\[\#241d18\],
+html.light .bg-\[\#251910\],
+html.light .bg-\[\#251f1a\],
+html.light .bg-\[\#261b11\],
+html.light .bg-\[\#261c14\],
+html.light .bg-\[\#261e17\],
+html.light .bg-\[\#261f18\],
+html.light .bg-\[\#26201a\],
+html.light .bg-\[\#291b10\],
+html.light .bg-\[\#291b11\],
+html.light .bg-\[\#291e15\],
+html.light .bg-\[\#2a1a10\],
+html.light .bg-\[\#2a1d12\],
+html.light .bg-\[\#2a1e16\],
+html.light .bg-\[\#2a221c\],
+html.light .bg-\[\#2a241f\],
+html.light .bg-\[\#2b180d\],
+html.light .bg-\[\#2b1e15\],
+html.light .bg-\[\#2c2017\],
+html.light .bg-\[\#2d1e14\],
+html.light .bg-\[\#2d1f14\],
+html.light .bg-\[\#2d2016\],
+html.light .bg-\[\#2d2116\],
+html.light .bg-\[\#2e1f14\],
+html.light .bg-\[\#2e2015\],
+html.light .bg-\[\#2e2620\],
+html.light .bg-\[\#33251c\],
+html.light .bg-\[\#332a22\],
+html.light .bg-\[\#342416\],
+html.light .bg-\[\#382012\],
+html.light .bg-\[\#382617\],
+html.light .bg-\[\#382618\],
+html.light .bg-\[\#38281b\],
+html.light .bg-\[\#382b1f\],
+html.light .bg-\[\#3d2414\],
+html.light .bg-\[\#3d2a1d\],
+html.light .bg-\[\#3d2b1d\] {
+  background-color: #F4EFE6 !important;
+}
+
+/* 4. Header & Navigation in Light Mode */
+html.light header {
+  background-color: rgba(250, 248, 245, 0.96) !important;
+  border-bottom-color: #E7DFD5 !important;
+  box-shadow: 0 4px 25px -4px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* 5. Footer in Light Mode */
+html.light footer {
+  background-color: #F3ECE1 !important;
+  color: #57534E !important;
+  border-top-color: #E2D7C7 !important;
+}
+
+/* 6. Primary High-Contrast Dark Text in Light Mode (Headings, Food Names, Titles) */
+html.light .text-\[\#fdfbf7\],
+html.light .text-\[\#fbf7ee\],
+html.light .text-\[\#f5efe6\],
+html.light .text-\[\#f5f2ed\],
+html.light .text-\[\#F5F2ED\],
+html.light .text-\[\#faeed1\],
+html.light .text-\[\#e2dacd\],
+html.light .text-\[\#e2d9cc\],
+html.light .text-\[\#e0d6c8\],
+html.light .text-\[\#ffffff\],
+html.light .text-white {
+  color: #1C1917 !important;
+}
+
+/* 7. Secondary / Muted Readable Dark Text in Light Mode (Descriptions, Notes, Subtexts) */
+html.light .text-\[\#c5bcad\],
+html.light .text-\[\#cfc3b2\],
+html.light .text-\[\#d6cebf\],
+html.light .text-\[\#D6CEBF\],
+html.light .text-\[\#d4cbbe\],
+html.light .text-\[\#d8cebe\],
+html.light .text-\[\#baa995\],
+html.light .text-\[\#b8ad9e\],
+html.light .text-\[\#b0a596\],
+html.light .text-\[\#a89d8f\],
+html.light .text-\[\#a69c8d\],
+html.light .text-\[\#9e9384\],
+html.light .text-\[\#9e9182\],
+html.light .text-\[\#9d9385\],
+html.light .text-\[\#9c9183\],
+html.light .text-\[\#8e8272\],
+html.light .text-\[\#8c8275\],
+html.light .text-\[\#8c8273\],
+html.light .text-\[\#8c8072\],
+html.light .text-\[\#8c7e6e\],
+html.light .text-\[\#8c7d6e\],
+html.light .text-\[\#7a7063\],
+html.light .text-\[\#7a6f61\],
+html.light .text-\[\#78716C\],
+html.light .text-\[\#736a5c\],
+html.light .text-\[\#6e6355\],
+html.light .text-\[\#6e5d4d\],
+html.light .text-\[\#665c52\],
+html.light .text-\[\#594f45\],
+html.light .text-stone-300,
+html.light .text-stone-400,
+html.light .text-stone-200 {
+  color: #57534E !important;
+}
+
+/* 8. Vibrant Amber-Gold Accents & Price Highlights in Light Mode */
+html.light .text-\[\#d4af37\],
+html.light .text-\[\#D4AF37\],
+html.light .text-\[\#c5a059\],
+html.light .text-\[\#C5A059\],
+html.light .text-\[\#e5c158\],
+html.light .text-\[\#E5C158\],
+html.light .text-\[\#e6c975\],
+html.light .text-\[\#c59b27\],
+html.light .text-amber-400,
+html.light .text-amber-300,
+html.light .text-yellow-400 {
+  color: #B45309 !important;
+}
+
+/* 9. Borders in Light Mode (Warm refined borders) */
+html.light .border-\[\#0D0D0D\],
+html.light .border-\[\#16110d\],
+html.light .border-\[\#1c1814\],
+html.light .border-\[\#1f1a16\],
+html.light .border-\[\#201a15\],
+html.light .border-\[\#221c17\],
+html.light .border-\[\#23180f\],
+html.light .border-\[\#241a12\],
+html.light .border-\[\#241e19\],
+html.light .border-\[\#251910\],
+html.light .border-\[\#261d15\],
+html.light .border-\[\#261d16\],
+html.light .border-\[\#261e17\],
+html.light .border-\[\#261e18\],
+html.light .border-\[\#261f18\],
+html.light .border-\[\#26201a\],
+html.light .border-\[\#281b11\],
+html.light .border-\[\#281e15\],
+html.light .border-\[\#291f16\],
+html.light .border-\[\#2a1e14\],
+html.light .border-\[\#2a2016\],
+html.light .border-\[\#2a221b\],
+html.light .border-\[\#2a241f\],
+html.light .border-\[\#2b1d12\],
+html.light .border-\[\#2b1d13\],
+html.light .border-\[\#2b1f15\],
+html.light .border-\[\#2b2118\],
+html.light .border-\[\#2b221a\],
+html.light .border-\[\#2c1d12\],
+html.light .border-\[\#2c2219\],
+html.light .border-\[\#2d2015\],
+html.light .border-\[\#2d2016\],
+html.light .border-\[\#2d2116\],
+html.light .border-\[\#2d2117\],
+html.light .border-\[\#2d2218\],
+html.light .border-\[\#2d2219\],
+html.light .border-\[\#2e1f14\],
+html.light .border-\[\#2e2115\],
+html.light .border-\[\#2e2116\],
+html.light .border-\[\#2e2218\],
+html.light .border-\[\#2e2319\],
+html.light .border-\[\#2e231a\],
+html.light .border-\[\#2e241c\],
+html.light .border-\[\#2e2620\],
+html.light .border-\[\#2f2015\],
+html.light .border-\[\#312316\],
+html.light .border-\[\#33251a\],
+html.light .border-\[\#33251c\],
+html.light .border-\[\#33261c\],
+html.light .border-\[\#33271d\],
+html.light .border-\[\#332a22\],
+html.light .border-\[\#352518\],
+html.light .border-\[\#36271c\],
+html.light .border-\[\#362c24\],
+html.light .border-\[\#382618\],
+html.light .border-\[\#38271a\],
+html.light .border-\[\#382a1d\],
+html.light .border-\[\#382b1d\],
+html.light .border-\[\#382b1e\],
+html.light .border-\[\#3a2719\],
+html.light .border-\[\#3a271a\],
+html.light .border-\[\#3a3028\],
+html.light .border-\[\#3b2b1d\],
+html.light .border-\[\#3d2a1c\],
+html.light .border-\[\#3d2b1f\],
+html.light .border-\[\#3d2f23\],
+html.light .border-\[\#3d3228\],
+html.light .border-\[\#3d332b\],
+html.light .border-\[\#3e2e21\],
+html.light .border-\[\#3f2b1d\],
+html.light .border-\[\#4a3424\],
+html.light .border-\[\#4d3826\],
+html.light .border-white\/5,
+html.light .border-white\/10 {
+  border-color: #E7DFD5 !important;
+}
+
+html.light .border-\[\#d4af37\],
+html.light .border-\[\#D4AF37\],
+html.light .border-\[\#C5A059\],
+html.light .border-\[\#c5a059\] {
+  border-color: #D97706 !important;
+}
+
+/* 10. Inputs, Textareas & Selects in Light Mode */
+html.light input,
+html.light textarea,
+html.light select {
+  background-color: #FFFFFF !important;
+  color: #1C1917 !important;
+  border-color: #D8CEBF !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #78716C !important;
+}
+
+html.light input:focus,
+html.light textarea:focus,
+html.light select:focus {
+  border-color: #B45309 !important;
+  box-shadow: 0 0 0 2px rgba(180, 83, 9, 0.15) !important;
+}
+
+/* 11. Buttons with Saturated Colors (Preserve high-contrast white text) */
+html.light .btn-gold,
+html.light .btn-gold span,
+html.light .btn-gold p,
+html.light .btn-gold svg {
+  color: #FFFFFF !important;
+}
+
+html.light .btn-gold {
+  background: linear-gradient(135deg, #B45309 0%, #D97706 100%) !important;
+  box-shadow: 0 4px 15px -2px rgba(180, 83, 9, 0.35) !important;
+}
+
+html.light .btn-gold:hover {
+  background: linear-gradient(135deg, #92400E 0%, #B45309 100%) !important;
+}
+
+html.light button.bg-emerald-600,
+html.light button.bg-emerald-700,
+html.light .bg-emerald-600,
+html.light .bg-emerald-700,
+html.light .bg-emerald-600 span,
+html.light .bg-emerald-700 span,
+html.light .bg-emerald-600 svg,
+html.light .bg-emerald-700 svg,
+html.light button.bg-red-600,
+html.light button.bg-red-700,
+html.light .bg-red-600,
+html.light .bg-red-700,
+html.light .bg-red-600 span,
+html.light .bg-red-700 span,
+html.light .bg-red-600 svg,
+html.light .bg-red-700 svg {
+  color: #FFFFFF !important;
+}
+
+/* 12. Golden Action Pills (e.g. Order Online buttons, Add buttons) */
+html.light .bg-gradient-to-r.from-\[\#d4af37\],
+html.light .bg-gradient-to-r.from-\[\#d4af37\].to-amber-500,
+html.light .bg-\[\#d4af37\] {
+  background: linear-gradient(135deg, #B45309 0%, #D97706 100%) !important;
+}
+
+html.light .bg-gradient-to-r.from-\[\#d4af37\] span,
+html.light .bg-gradient-to-r.from-\[\#d4af37\] svg,
+html.light .bg-\[\#d4af37\] span,
+html.light .bg-\[\#d4af37\] svg,
+html.light .bg-\[\#d4af37\].text-\[\#120d09\],
+html.light .bg-\[\#d4af37\].text-black {
+  color: #FFFFFF !important;
+}
+
+/* 13. Pink Dessert Bar & Ice Cream Accents in Light Mode */
+html.light .bg-\[\#1f1217\]\/80,
+html.light .bg-\[\#201018\],
+html.light .bg-\[\#2e1622\] {
+  background-color: #FDF2F4 !important;
+}
+
+html.light .text-pink-100,
+html.light .text-pink-200 {
+  color: #9D174D !important;
+}
+
+/* 14. Cards & Modals Elevation in Light Mode */
+html.light .rounded-2xl,
+html.light .rounded-3xl,
+html.light .rounded-xl {
+  box-shadow: 0 2px 14px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ATMOSPHERIC VAPOR & STEAM VISUAL EFFECTS
+   High-performance GPU-accelerated realistic steam and chilled mist
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Container masking so steam/mist naturally dissipates without hard edges */
+.vapor-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+  z-index: 10;
+  mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,0.85) 12%, rgba(0,0,0,0.95) 60%, transparent 92%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, rgba(0,0,0,0.85) 12%, rgba(0,0,0,0.95) 60%, transparent 92%);
+}
+
+/* Warm Steam Plumes */
+.steam-plume {
+  position: absolute;
+  bottom: 6%;
+  border-radius: 50%;
+  filter: blur(14px);
+  will-change: transform, opacity;
+  background: radial-gradient(circle, rgba(255, 240, 220, 0.32) 0%, rgba(245, 215, 175, 0.16) 40%, rgba(255, 255, 255, 0) 75%);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.steam-plume-1 {
+  left: 20%;
+  width: 48%;
+  height: 56%;
+  animation: steamRise1 7.2s infinite;
+}
+
+.steam-plume-2 {
+  left: 42%;
+  width: 52%;
+  height: 62%;
+  animation: steamRise2 8.6s infinite 2.2s;
+}
+
+.steam-plume-3 {
+  left: 32%;
+  width: 44%;
+  height: 52%;
+  animation: steamRise3 6.6s infinite 4.2s;
+}
+
+@keyframes steamRise1 {
+  0% {
+    transform: translate3d(-8px, 18px, 0) scale(0.65) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.48;
+  }
+  50% {
+    transform: translate3d(8px, -45px, 0) scale(1.18) rotate(6deg);
+    opacity: 0.36;
+  }
+  75% {
+    opacity: 0.18;
+  }
+  100% {
+    transform: translate3d(-14px, -110px, 0) scale(1.55) rotate(-8deg);
+    opacity: 0;
+  }
+}
+
+@keyframes steamRise2 {
+  0% {
+    transform: translate3d(12px, 22px, 0) scale(0.6) rotate(0deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.42;
+  }
+  60% {
+    transform: translate3d(-12px, -55px, 0) scale(1.22) rotate(-7deg);
+    opacity: 0.28;
+  }
+  80% {
+    opacity: 0.12;
+  }
+  100% {
+    transform: translate3d(10px, -125px, 0) scale(1.6) rotate(9deg);
+    opacity: 0;
+  }
+}
+
+@keyframes steamRise3 {
+  0% {
+    transform: translate3d(0, 15px, 0) scale(0.7) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.45;
+  }
+  55% {
+    transform: translate3d(14px, -40px, 0) scale(1.12) rotate(5deg);
+    opacity: 0.32;
+  }
+  85% {
+    opacity: 0.14;
+  }
+  100% {
+    transform: translate3d(-8px, -100px, 0) scale(1.45) rotate(-4deg);
+    opacity: 0;
+  }
+}
+
+/* Chilled Cool Mist */
+.mist-cloud {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(15px);
+  will-change: transform, opacity;
+  background: radial-gradient(circle, rgba(205, 245, 255, 0.28) 0%, rgba(170, 225, 255, 0.14) 45%, rgba(255, 255, 255, 0) 75%);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.mist-cloud-1 {
+  bottom: 6%;
+  left: 10%;
+  width: 68%;
+  height: 55%;
+  animation: mistRoll1 9.5s infinite alternate;
+}
+
+.mist-cloud-2 {
+  bottom: 10%;
+  right: 10%;
+  width: 62%;
+  height: 50%;
+  animation: mistRoll2 11.5s infinite alternate 1.8s;
+}
+
+.mist-cloud-3 {
+  bottom: 0%;
+  left: 25%;
+  width: 54%;
+  height: 42%;
+  animation: mistRoll3 8.5s infinite alternate 3.6s;
+}
+
+@keyframes mistRoll1 {
+  0% {
+    transform: translate3d(-8px, 6px, 0) scale(0.9);
+    opacity: 0.22;
+  }
+  50% {
+    transform: translate3d(12px, -16px, 0) scale(1.12);
+    opacity: 0.46;
+  }
+  100% {
+    transform: translate3d(-4px, -32px, 0) scale(1.22);
+    opacity: 0.16;
+  }
+}
+
+@keyframes mistRoll2 {
+  0% {
+    transform: translate3d(10px, 0px, 0) scale(0.85);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translate3d(-10px, -22px, 0) scale(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translate3d(6px, -36px, 0) scale(1.2);
+    opacity: 0.14;
+  }
+}
+
+@keyframes mistRoll3 {
+  0% {
+    transform: translate3d(0, 8px, 0) scale(0.95);
+    opacity: 0.28;
+  }
+  50% {
+    transform: translate3d(-6px, -14px, 0) scale(1.16);
+    opacity: 0.48;
+  }
+  100% {
+    transform: translate3d(8px, -26px, 0) scale(1.26);
+    opacity: 0.2;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .steam-plume, .mist-cloud {
+    animation: none !important;
+    opacity: 0.25 !important;
+  }
+  .ai-assistant-glow {
+    animation: none !important;
+  }
+}
+
+/* AI Assistant Button Continuous Subtle Glow Animation */
+/* Pattern: Glow for 0.5s -> return to normal -> wait briefly -> glow again -> repeat */
+@keyframes aiButtonGlow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    border-color: rgba(212, 175, 55, 0.45);
+  }
+  14% {
+    box-shadow: 0 0 14px 2px rgba(212, 175, 55, 0.75), 0 0 24px 4px rgba(212, 175, 55, 0.35);
+    border-color: rgba(212, 175, 55, 1);
+  }
+  28% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    border-color: rgba(212, 175, 55, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    border-color: rgba(212, 175, 55, 0.45);
+  }
+}
+
+.ai-assistant-glow {
+  animation: aiButtonGlow 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes aiBadgeSparkle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+.ai-sparkle-pulse {
+  animation: aiBadgeSparkle 2.2s ease-in-out infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   SCROLL-TRIGGERED ATMOSPHERIC STEAM / SMOKE TRAIL
+   Subtle cinematic wisps emerging as content exits top of viewport
+   ══════════════════════════════════════════════════════════════════════════ */
+@keyframes scrollSteamDrift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--rot-start, 0deg)) scale(var(--scale-start, 0.7));
+    opacity: 0;
+  }
+  20% {
+    opacity: var(--opacity-peak, 0.28);
+  }
+  50% {
+    transform: translate3d(calc(var(--drift-x, 10px) * 0.5), calc(var(--drift-y, -40px) * 0.5), 0) rotate(calc(var(--rot-end, 15deg) * 0.5)) scale(calc((var(--scale-start, 0.7) + var(--scale-end, 1.3)) * 0.5));
+    opacity: calc(var(--opacity-peak, 0.28) * 0.75);
+  }
+  100% {
+    transform: translate3d(var(--drift-x, 20px), var(--drift-y, -70px), 0) rotate(var(--rot-end, 25deg)) scale(var(--scale-end, 1.35));
+    opacity: 0;
+  }
+}
+
+.steam-scroll-trail-wisp {
+  animation-name: scrollSteamDrift;
+  animation-fill-mode: forwards;
+}
+
+html.light .steam-scroll-trail-wisp {
+  /* Soft translucent amber/warm smoke in light mode */
+  background: radial-gradient(ellipse at 50% 50%, rgba(180, 140, 100, 0.24) 0%, rgba(160, 120, 80, 0.12) 40%, rgba(200, 180, 160, 0.04) 65%, rgba(0,0,0,0) 80%) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steam-scroll-trail-wisp {
+    display: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   DISABLED SIDE-ENTRY ANIMATIONS (STATIC POSITIONING ONLY)
+   - Zero horizontal movement on scroll
+   - Static rendering in standard position
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.side-entry-item,
+.side-entry-left,
+.side-entry-right,
+.side-entry-revealed {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  animation: none !important;
+  will-change: auto !important;
+}
+
+@media (max-width: 767px) {
+  .side-entry-item,
+  .side-entry-left,
+  .side-entry-right,
+  .side-entry-revealed {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   100% BUTTERY SMOOTH ZERO-LAG NATIVE IMAGE SLIDER & HARDWARE ACCELERATION
+   - scroll-snap-type: x mandatory on container
+   - scroll-snap-align: center on slides for perfect lock
+   - -webkit-overflow-scrolling: touch for iOS/Android native momentum
+   - scroll-behavior: smooth on HTML & container
+   - overflow-x: auto with scrollbar-width: none & hidden webkit scrollbars
+   - will-change: transform on track & slides
+   - Hardware Boost: transform: translate3d(0, 0, 0)
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.slider-snap-container {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+  touch-action: pan-x;
+  will-change: scroll-position;
+}
+
+.slider-snap-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.slider-snap-slide {
+  flex: 0 0 100%;
+  width: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+  contain: paint;
+  content-visibility: auto;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slider-track-hardware {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fixed Header Hardware Acceleration & Repaint Prevention */
+.fixed-header-hardware {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout paint;
+}
+
+/* Nav Arrows with smooth cubic-bezier transition */
+.slider-nav-btn {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.slider-nav-btn:hover {
+  transform: scale(1.08) translate3d(0, 0, 0);
+  -webkit-transform: scale(1.08) translate3d(0, 0, 0);
+}
+
+.slider-nav-btn:active {
+  transform: scale(0.95) translate3d(0, 0, 0);
+  -webkit-transform: scale(0.95) translate3d(0, 0, 0);
+}
+
+/* Text Overlay Hardware Acceleration */
+.slider-text-overlay {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Fixed Floating Navigation Dock (Order Online / Book Table) - Repaint Prevention */
+.floating-bottom-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout paint;
+}
+
+@media (min-width: 768px) {
+  .slider-snap-slide-multi {
+    flex: 0 0 calc(50% - 12px);
+    scroll-snap-align: center;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+}
+
+@media (min-width: 1024px) {
+  .slider-snap-slide-multi {
+    flex: 0 0 calc(33.333% - 16px);
+    scroll-snap-align: center;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes sliderProgress {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SUBTLE GLOWING HEADING & VERY LIGHT ORGANIC LETTER MOVEMENT
+   Slow, elegant, 95% stable + 5% micro-interaction
+   Strictly adheres to prefers-reduced-motion for accessibility
+   ════════════════════════════════════════════════════════════════ */
+
+@keyframes subtleHeadingGlow {
+  0%, 100% {
+    text-shadow: 0 0 1px rgba(212, 175, 55, 0.22), 0 0 8px rgba(212, 175, 55, 0.1);
+  }
+  50% {
+    text-shadow: 0 0 4px rgba(212, 175, 55, 0.42), 0 0 16px rgba(212, 175, 55, 0.24), 0 0 28px rgba(245, 158, 11, 0.12);
+  }
+}
+
+@keyframes subtleLetterBreathe {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  38% {
+    transform: translateY(-0.85px) rotate(0.1deg);
+  }
+  68% {
+    transform: translateY(0.4px) rotate(-0.06deg);
+  }
+  88% {
+    transform: translateY(0px) rotate(0deg);
+  }
+}
+
+.subtle-heading-glow {
+  animation: subtleHeadingGlow 7s ease-in-out infinite;
+  will-change: text-shadow;
+}
+
+.subtle-letter-float {
+  display: inline-block;
+  will-change: transform;
+  animation: subtleLetterBreathe 6.5s ease-in-out infinite;
+}
+
+/* Accessibility: Full respect for prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .subtle-heading-glow {
+    animation: none !important;
+    text-shadow: none !important;
+  }
+  .subtle-letter-float {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+
+
+
+
+

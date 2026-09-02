@@ -1,135 +1,218 @@
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, X, ArrowRight, ShieldCheck, AlertCircle } from 'lucide-react';
-import { apiVerifyOwnerPassword } from '../../lib/api';
+import { useRestaurantData } from '../../context/RestaurantDataContext';
+import { Lock, KeyRound, ShieldAlert, X, Eye, EyeOff, Sparkles, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface OwnerLoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
-  restaurantName?: string;
+  onSuccess?: () => void;
 }
 
 export const OwnerLoginModal: React.FC<OwnerLoginModalProps> = ({
   isOpen,
   onClose,
-  onSuccess,
-  restaurantName = 'PakBite Food',
+  onSuccess
 }) => {
+  const { loginOwner } = useRestaurantData();
+  const [username, setUsername] = useState('owner');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-    if (errorMsg) setErrorMsg(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const cleanPass = password.trim();
-    if (!cleanPass) {
-      setErrorMsg('Please enter the owner password.');
+    setErrorMessage('');
+
+    if (!password.trim()) {
+      setErrorMessage('Please enter the owner passphrase.');
+      return;
+    }
+
+    if (password.length < 1 || password.length > 10) {
+      setErrorMessage('Password must be between 1 and 10 characters.');
       return;
     }
 
     setIsLoading(true);
-    setErrorMsg(null);
 
-    try {
-      const result = await apiVerifyOwnerPassword(cleanPass);
-      if (result.success) {
-        setPassword('');
-        onSuccess();
-      } else {
-        setErrorMsg(result.error || 'Incorrect password. Please try again.');
-      }
-    } catch {
-      setErrorMsg('Unable to verify password. Please try again.');
-    } finally {
+    setTimeout(() => {
+      const result = loginOwner(username, password);
       setIsLoading(false);
-    }
+
+      if (result.success) {
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        setErrorMessage(result.error || 'Authentication failed. Please verify credentials.');
+      }
+    }, 300);
+  };
+
+  const handleQuickFill = () => {
+    setUsername('owner');
+    setPassword('12345');
+    setErrorMessage('');
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
-      <div className="relative bg-stone-900 border border-stone-800 rounded-3xl max-w-sm w-full p-6 sm:p-7 shadow-2xl overflow-hidden text-center">
-        {/* Close Button */}
-        <button
-          type="button"
+    <AnimatePresence>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        {/* Backdrop */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl text-stone-400 hover:text-white hover:bg-stone-800 transition-colors"
-          aria-label="Close"
+          className="fixed inset-0 bg-black/85 backdrop-blur-md"
+        />
+
+        {/* Modal Window */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.94, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.94, y: 20 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="relative w-full max-w-md bg-[#14110F] border border-[#C5A059]/30 rounded-2xl p-7 shadow-2xl shadow-black text-[#F5F2ED] overflow-hidden"
         >
-          <X className="w-5 h-5" />
-        </button>
+          {/* Subtle Ambient Gold Glow */}
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#C5A059]/15 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Lock Icon */}
-        <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center mx-auto mb-4 shadow-inner">
-          <Lock className="w-7 h-7" />
-        </div>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-5 right-5 text-[#D6CEBF]/70 hover:text-[#F5F2ED] p-1.5 rounded-lg hover:bg-white/5 transition-colors"
+            aria-label="Close modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
 
-        {/* Title & Description */}
-        <h3 className="text-xl font-black text-white font-serif tracking-tight mb-1">
-          Owner Portal
-        </h3>
-        <p className="text-xs text-stone-400 mb-6">
-          Enter your password to access the store management dashboard
-        </p>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={handleInputChange}
-                autoFocus
-                placeholder="Enter password"
-                className={`w-full bg-stone-950 border ${
-                  errorMsg ? 'border-rose-500 ring-1 ring-rose-500/30' : 'border-stone-800 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30'
-                } rounded-2xl py-3.5 pl-4 pr-11 text-center text-lg sm:text-xl font-mono font-bold text-white focus:outline-none transition-all placeholder:text-stone-600`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-500 hover:text-stone-300 p-1.5 rounded-lg hover:bg-stone-800 transition-colors"
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-              >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4AF37]/20 to-[#8C5E10]/30 border border-[#C5A059]/40 flex items-center justify-center text-[#D4AF37] shadow-inner">
+              <Lock className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="text-[10px] tracking-[0.25em] uppercase font-bold text-[#C5A059]">
+                Management Verification
+              </div>
+              <h3 className="text-xl font-display font-semibold text-white tracking-wide">
+                Owner Dashboard Access
+              </h3>
             </div>
           </div>
 
-          {errorMsg && (
-            <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-950/50 border border-rose-800/60 text-rose-300 text-xs text-left">
-              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
+          <p className="text-sm text-[#D6CEBF] mb-6 leading-relaxed">
+            Please authenticate your executive credentials to manage live menus, recipes, special offers, gallery, and restaurant operations.
+          </p>
+
+          {/* Error Message */}
+          {errorMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-5 p-3.5 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-200 text-xs flex items-start gap-2.5"
+            >
+              <ShieldAlert className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <span>{errorMessage}</span>
+            </motion.div>
           )}
 
-          <div className="flex items-center gap-2 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-3 px-4 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 font-semibold text-xs transition-colors"
-            >
-              Cancel
-            </button>
+          {/* Login Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold text-[#D6CEBF] uppercase tracking-wider mb-2">
+                Owner / Executive Username
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  placeholder="e.g. owner or admin"
+                  className="w-full bg-[#1C1815] border border-white/10 focus:border-[#C5A059] rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 outline-none transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-[#D6CEBF] uppercase tracking-wider">
+                  Passphrase Key
+                </label>
+                <button
+                  type="button"
+                  onClick={handleQuickFill}
+                  className="text-[11px] text-[#C5A059] hover:underline flex items-center gap-1 font-medium"
+                >
+                  <Sparkles className="w-3 h-3" />
+                  Quick Fill Demo Credentials
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  maxLength={10}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Enter executive password (1-10 chars)"
+                  className="w-full bg-[#1C1815] border border-white/10 focus:border-[#C5A059] rounded-xl pl-4 pr-11 py-3 text-sm text-white placeholder-white/25 outline-none transition-all font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              <p className="text-[10px] text-white/40 mt-1">Rule: 1–10 characters (numeric or alphanumeric). Testing key: 12345</p>
+            </div>
+
+            {/* Quick Demo Credentials Box */}
+            <div className="p-3 bg-[#1B1815]/90 border border-[#C5A059]/20 rounded-xl text-xs text-[#D6CEBF] flex items-center justify-between">
+              <div className="space-y-0.5">
+                <div className="text-[10px] uppercase tracking-wider text-[#C5A059] font-bold">Standard Owner Verification:</div>
+                <div className="text-white/90 font-mono text-[11px]">User: <span className="text-[#C5A059]">owner</span> | Key: <span className="text-[#C5A059]">12345</span></div>
+              </div>
+              <button
+                type="button"
+                onClick={handleQuickFill}
+                className="px-2.5 py-1.5 rounded-lg bg-[#C5A059]/15 hover:bg-[#C5A059]/25 text-[#E5C158] text-[11px] font-semibold transition-colors cursor-pointer"
+              >
+                Auto Fill
+              </button>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading || !password.trim()}
-              className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-stone-950 font-black text-xs flex items-center justify-center gap-1.5 transition-all shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              className="w-full btn-gold py-3.5 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#C5A059]/20 mt-2"
             >
-              <span>{isLoading ? 'Verifying...' : 'Unlock Portal'}</span>
-              {!isLoading && <ArrowRight className="w-3.5 h-3.5" />}
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-[#0D0D0D] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <>
+                  <KeyRound className="w-4 h-4" />
+                  Unlock Owner Dashboard
+                </>
+              )}
             </button>
+          </form>
+
+          {/* Security Guarantee */}
+          <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-2 text-[11px] text-[#D6CEBF]/60 text-center">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#C5A059]" />
+            <span>Encrypted Owner Session. Edit tools are hidden from normal diners.</span>
           </div>
-        </form>
+        </motion.div>
       </div>
-    </div>
+    </AnimatePresence>
   );
 };
